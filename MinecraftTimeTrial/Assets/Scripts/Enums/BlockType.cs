@@ -1,9 +1,11 @@
 ﻿public enum BlockType
 {
-    Air = 1,
-    Dirt = 2,
-    Grass = 3,
-    Stone = 4,
-    Trunk = 5,
-    Leaves = 6,
+    Air = 0,
+    Dirt = 1,
+    Grass = 2,
+    Trunk = 3,
+    Leaves = 4,
+    Stone = 5,
+    Sand = 6,
+    Bedrock = 7,
 }
