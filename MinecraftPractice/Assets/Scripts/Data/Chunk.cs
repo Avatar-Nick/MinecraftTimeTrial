@@ -5,7 +5,7 @@ using UnityEngine;
 public class Chunk : MonoBehaviour
 {
     [Header("Chunk Data")]
-    public Coordinate coordinate;
+    public ChunkCoordinate chunkCoordinate;
 
     [Header("Chunk Graphics")]
     public MeshRenderer meshRenderer;
@@ -16,11 +16,14 @@ public class Chunk : MonoBehaviour
     private List<int> triangles = new List<int>();
     private List<Vector2> uvs = new List<Vector2>();
 
-    public BlockType[,,] blocks = new BlockType[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];    
+    public BlockType[,,] blocks = new BlockType[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
 
-    public void Initialize(Coordinate coordinate)
+    //-----------------------------------------------------------------------------------//
+    //Chunk Initialization
+    //-----------------------------------------------------------------------------------//
+    public void Initialize(ChunkCoordinate coordinate)
     {
-        this.coordinate = coordinate;
+        this.chunkCoordinate = coordinate;
         name = string.Format("Chunk {0}", coordinate);
         transform.SetParent(Map.instance.transform);
         transform.position = new Vector3(coordinate.x * VoxelData.ChunkWidth, 0f, coordinate.z * VoxelData.ChunkWidth);
@@ -52,7 +55,7 @@ public class Chunk : MonoBehaviour
             {
                 for (int z = 0; z < VoxelData.ChunkWidth; z++)
                 {
-                    BuildBlock(new Vector3(x, y, z));
+                    BuildBlock(new Vector3(x, y, z));                   
                 }
             }
         }
@@ -66,7 +69,7 @@ public class Chunk : MonoBehaviour
         for (int face = 0; face < 6; face++)
         {
             // Only draw face if there are no voxels adjacent to this face
-            if (!CheckVoxel(coordinate + VoxelData.faceChecks[face]))
+            if (!IsAdjacentSolidVoxel(coordinate + VoxelData.faceChecks[face]))
             {
                 vertices.Add(coordinate + VoxelData.vertices[VoxelData.triangles[face, 0]]);
                 vertices.Add(coordinate + VoxelData.vertices[VoxelData.triangles[face, 1]]);
@@ -86,21 +89,6 @@ public class Chunk : MonoBehaviour
         }        
     }
 
-    public bool CheckVoxel(Vector3 coordinate)
-    {
-        int x = (int)coordinate.x;
-        int y = (int)coordinate.y;
-        int z = (int)coordinate.z;
-
-        if(!IsVoxelInChunk(x, y, z))
-        {
-            BlockType mapVoxel = Map.instance.GetVoxel(x + (int)transform.position.x, y + (int)transform.position.y, z + (int)transform.position.z);
-            return mapVoxel != BlockType.Air;
-        }
-
-        return blocks[(int)coordinate.x, (int)coordinate.y, (int)coordinate.z] != BlockType.Air;
-    }
-
     public void CreateMesh()
     {
         Mesh mesh = new Mesh();
@@ -110,19 +98,11 @@ public class Chunk : MonoBehaviour
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
     }
+    //-----------------------------------------------------------------------------------//
 
-    public void AddTexture(BlockType blockType, int faceIndex)
-    {        
-        Block block = TextureData.blocks[blockType];
-        Face face = block.GetFace(faceIndex);
-        uvs.AddRange(face.uvs);
-    }
-
-    public void Toggle(bool toggle)
-    {
-        gameObject.SetActive(toggle);
-    }
-
+    //-----------------------------------------------------------------------------------//
+    //Check Functions
+    //-----------------------------------------------------------------------------------//
     public bool IsVoxelInChunk(int x, int y, int z)
     {
         if (x < 0 || x > VoxelData.ChunkWidth - 1 || y < 0 || y > VoxelData.ChunkHeight - 1 || z < 0 || z > VoxelData.ChunkWidth - 1)
@@ -131,4 +111,35 @@ public class Chunk : MonoBehaviour
         }
         return true;
     }
+    public bool IsAdjacentSolidVoxel(Vector3 coordinate)
+    {
+        int x = (int)coordinate.x;
+        int y = (int)coordinate.y;
+        int z = (int)coordinate.z;
+
+        if (!IsVoxelInChunk(x, y, z))
+        {
+            BlockType mapVoxel = Map.instance.GetVoxel(x + (int)transform.position.x, y + (int)transform.position.y, z + (int)transform.position.z);
+            return mapVoxel != BlockType.Air;
+        }
+
+        return blocks[(int)coordinate.x, (int)coordinate.y, (int)coordinate.z] != BlockType.Air;
+    }
+    //-----------------------------------------------------------------------------------//
+
+    //-----------------------------------------------------------------------------------//
+    //Graphics Functions
+    //-----------------------------------------------------------------------------------//
+    public void Toggle(bool toggle)
+    {
+        gameObject.SetActive(toggle);
+    }
+
+    public void AddTexture(BlockType blockType, int faceIndex)
+    {
+        Block block = TextureData.blocks[blockType];
+        Face face = block.GetFace(faceIndex);
+        uvs.AddRange(face.uvs);
+    }    
+    //-----------------------------------------------------------------------------------//
 }

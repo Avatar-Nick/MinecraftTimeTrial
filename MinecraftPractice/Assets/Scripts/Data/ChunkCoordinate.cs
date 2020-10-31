@@ -1,12 +1,12 @@
 ﻿using System;
 
 [Serializable]
-public struct Coordinate
+public struct ChunkCoordinate
 {
     public int x;
     public int z;
 
-    public Coordinate(int x, int z)
+    public ChunkCoordinate(int x, int z)
     {
         this.x = x;
         this.z = z;

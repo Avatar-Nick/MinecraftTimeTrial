@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{E0314769-9A15-D6E5-C7D5-8D269FA148E2}</ProjectGuid>
+    <ProjectGuid>{74AE9798-01AD-20D2-A79F-9200A42C9B67}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -55,17 +55,18 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio Tools for Unity\16.0\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Data\TextureData.cs" />
-    <Compile Include="Assets\Scripts\Chunk.cs" />
-    <Compile Include="Assets\Scripts\Face.cs" />
+    <Compile Include="Assets\Scripts\Data\StaticData\TextureData.cs" />
+    <Compile Include="Assets\Scripts\Data\StaticData\Noise.cs" />
+    <Compile Include="Assets\Scripts\Data\Chunk.cs" />
+    <Compile Include="Assets\Scripts\Data\Face.cs" />
     <Compile Include="Assets\Scripts\ViewController.cs" />
     <Compile Include="Assets\Scripts\Enums\BlockType.cs" />
-    <Compile Include="Assets\Scripts\Data\VoxelData.cs" />
+    <Compile Include="Assets\Scripts\Data\StaticData\VoxelData.cs" />
     <Compile Include="Assets\Scripts\Map.cs" />
     <Compile Include="Assets\Scripts\Enums\FaceType.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
-    <Compile Include="Assets\Scripts\Block.cs" />
-    <Compile Include="Assets\Scripts\Coordinate.cs" />
+    <Compile Include="Assets\Scripts\Data\Block.cs" />
+    <Compile Include="Assets\Scripts\Data\ChunkCoordinate.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -232,7 +232,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 311845695}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 751.6468, y: 52.59339, z: 818.79877}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -492,6 +492,10 @@ MonoBehaviour:
   chunkPrefab: {fileID: 2646118676856504080, guid: 4c7bbf4aae7ed864286ad26550d5f281, type: 3}
   player: {fileID: 311845695}
   spawnPosition: {x: 0, y: 0, z: 0}
+  currentCoordinate:
+    x: 0
+    z: 0
+  seed: 1337
 --- !u!4 &1186026933
 Transform:
   m_ObjectHideFlags: 0
