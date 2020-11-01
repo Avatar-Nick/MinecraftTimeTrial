@@ -67,7 +67,7 @@ public class Map : MonoBehaviour
 
     public void UpdateMap(bool instant = false)
     {
-        ChunkCoordinate coordinate = GetChunkCoordinate(player.transform.position);
+        ChunkCoordinate coordinate = GetChunkMidCoordinate(player.transform.position);
         if (coordinate.Equals(currentCoordinate)) return;
 
         int xStart = coordinate.x - VoxelData.ViewDistanceInChunks;
@@ -135,6 +135,26 @@ public class Map : MonoBehaviour
         chunks.Add(coordinate, chunk);
     }
 
+    // Gets a current voxel than checks for air
+    public bool CheckForAirVoxel(int x, int y, int z)
+    {
+        Vector3 position = new Vector3(x, y, z);
+        ChunkCoordinate chunkCoordinate = GetChunkCoordinate(position);
+        if (!IsChunkInWorld(chunkCoordinate) || y < 0 || y > VoxelData.ChunkHeight)
+        {
+            return true;
+        }
+
+        chunks.TryGetValue(chunkCoordinate, out Chunk chunk);
+        if (chunk != null && chunk.isChunkDataPopulated)
+        {
+            return chunk.GetVoxel(position) == BlockType.Air;
+        }
+
+        return GetVoxel(x, y, z) == BlockType.Air;
+    }
+
+    // Gets a New Voxel
     public BlockType GetVoxel(int x, int y, int z)
     {
         // If outside the world, return air
@@ -196,6 +216,22 @@ public class Map : MonoBehaviour
     //Check Functions
     //-----------------------------------------------------------------------------------//
     public ChunkCoordinate GetChunkCoordinate(Vector3 position)
+    {
+        int x = (int)position.x / VoxelData.ChunkWidth;
+        int z = (int)position.z / VoxelData.ChunkWidth;
+        return new ChunkCoordinate(x, z);
+    }
+
+
+    public Chunk GetChunk(Vector3 position)
+    {
+        ChunkCoordinate chunkCoordinate = GetChunkCoordinate(position);
+        chunks.TryGetValue(chunkCoordinate, out Chunk chunk);
+        return chunk;
+    }
+
+    // Used for correct map view distance updating
+    public ChunkCoordinate GetChunkMidCoordinate(Vector3 position)
     {
         int x = ((int)position.x + (VoxelData.ChunkWidth / 2)) / VoxelData.ChunkWidth;
         int z = ((int)position.z + (VoxelData.ChunkWidth / 2)) / VoxelData.ChunkWidth;

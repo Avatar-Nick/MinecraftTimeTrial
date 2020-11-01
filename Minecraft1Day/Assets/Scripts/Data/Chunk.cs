@@ -6,6 +6,7 @@ public class Chunk : MonoBehaviour
 {
     [Header("Chunk Data")]
     public ChunkCoordinate chunkCoordinate;
+    public bool isChunkDataPopulated = false;
 
     [Header("Chunk Graphics")]
     public MeshRenderer meshRenderer;
@@ -28,12 +29,11 @@ public class Chunk : MonoBehaviour
         transform.SetParent(Map.instance.transform);
         transform.position = new Vector3(coordinate.x * VoxelData.ChunkWidth, 0f, coordinate.z * VoxelData.ChunkWidth);
 
-        PopulateVoxelMap();
-        BuildChunk();
-        CreateMesh();
+        PopulateChunkData();
+        UpdateChunk();
     }
 
-    public void PopulateVoxelMap()
+    public void PopulateChunkData()
     {
         for (int y = 0; y < VoxelData.ChunkHeight; y++)
         {
@@ -45,10 +45,12 @@ public class Chunk : MonoBehaviour
                 }
             }
         }
+        isChunkDataPopulated = true;
     }
 
-    public void BuildChunk()
+    public void UpdateChunk()
     {
+        ClearMesh();
         for (int y = 0; y < VoxelData.ChunkHeight; y++)
         {
             for (int x = 0; x < VoxelData.ChunkWidth; x++)
@@ -59,6 +61,7 @@ public class Chunk : MonoBehaviour
                 }
             }
         }
+        CreateMesh();
     }
 
     public void BuildBlock(Vector3 coordinate)
@@ -69,7 +72,7 @@ public class Chunk : MonoBehaviour
         for (int face = 0; face < 6; face++)
         {
             // Only draw face if there are no voxels adjacent to this face
-            if (!IsAdjacentSolidVoxel(coordinate + VoxelData.faceChecks[face]))
+            if (IsAir(coordinate + VoxelData.faceChecks[face]))
             {
                 vertices.Add(coordinate + VoxelData.vertices[VoxelData.triangles[face, 0]]);
                 vertices.Add(coordinate + VoxelData.vertices[VoxelData.triangles[face, 1]]);
@@ -99,7 +102,44 @@ public class Chunk : MonoBehaviour
 
         meshFilter.mesh = mesh;
     }
+
+    public void ClearMesh()
+    {
+        vertexIndex = 0;
+        vertices.Clear();
+        triangles.Clear();
+        uvs.Clear();
+    }
     //-----------------------------------------------------------------------------------//
+
+    //-----------------------------------------------------------------------------------//
+    //Update Functions
+    //-----------------------------------------------------------------------------------//
+    public void UpdateVoxel(Vector3 position, BlockType blockType)
+    {
+        int xCheck = (int)position.x - (int)transform.position.x;
+        int yCheck = (int)position.y;
+        int zCheck = (int)position.z - (int)transform.position.z;
+
+        blocks[xCheck, yCheck, zCheck] = blockType;
+        UpdateSurroundingVoxels(xCheck, yCheck, zCheck);
+        UpdateChunk();
+    }
+
+    public void UpdateSurroundingVoxels(int x, int y, int z)
+    {
+        Vector3 startPosition = new Vector3(x, y, z);
+        for (int face = 0; face < 6; face++)
+        {
+            Vector3 newPosition = startPosition + VoxelData.faceChecks[face];
+            if (!IsVoxelInChunk((int)newPosition.x, (int)newPosition.y, (int)newPosition.z))
+            {
+                Map.instance.GetChunk(newPosition + transform.position).UpdateChunk();
+            }
+        }
+    }
+    //-----------------------------------------------------------------------------------//
+
 
     //-----------------------------------------------------------------------------------//
     //Check Functions
@@ -112,19 +152,31 @@ public class Chunk : MonoBehaviour
         }
         return true;
     }
-    public bool IsAdjacentSolidVoxel(Vector3 coordinate)
+
+    public BlockType GetVoxel(Vector3 position)
+    {
+
+        int xCheck = (int)position.x;
+        int yCheck = (int)position.y;
+        int zCheck = (int)position.z;
+
+        xCheck -= (int)transform.position.x;
+        zCheck -= (int)transform.position.z;
+        return blocks[xCheck, yCheck, zCheck];
+
+    }
+
+    public bool IsAir(Vector3 coordinate)
     {
         int x = (int)coordinate.x;
         int y = (int)coordinate.y;
         int z = (int)coordinate.z;
-
         if (!IsVoxelInChunk(x, y, z))
         {
-            BlockType mapVoxel = Map.instance.GetVoxel(x + (int)transform.position.x, y + (int)transform.position.y, z + (int)transform.position.z);
-            return mapVoxel != BlockType.Air;
+            return Map.instance.CheckForAirVoxel(x + (int)transform.position.x, y + (int)transform.position.y, z + (int)transform.position.z);
         }
 
-        return blocks[(int)coordinate.x, (int)coordinate.y, (int)coordinate.z] != BlockType.Air;
+        return blocks[(int)coordinate.x, (int)coordinate.y, (int)coordinate.z] == BlockType.Air;
     }
     //-----------------------------------------------------------------------------------//
 
