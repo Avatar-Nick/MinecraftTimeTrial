@@ -362,6 +362,7 @@ MonoBehaviour:
   seed: 1337
   biome: {fileID: 11400000, guid: a2927fd7f6fa3f64e970baeaa52a5814, type: 2}
   chunkPrefab: {fileID: 2646118676856504080, guid: 4c7bbf4aae7ed864286ad26550d5f281, type: 3}
+  generateChunks: []
   player: {fileID: 1368761504}
   spawnPosition: {x: 0, y: 0, z: 0}
   currentCoordinate:
@@ -412,13 +413,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a0d9ee26b26e74cb574e9c878c2047, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerRadius: 0.5
+  playerRadius: 0.4
   playerHeight: 2
   cam: {fileID: 824276278}
-  lookMultiplier: 400
-  walkSpeed: 3
+  lookMultiplier: 180
+  walkSpeed: 6
   sprintSpeed: 6
-  jumpForce: 6
+  jumpForce: 5
   gravity: -9.81
 --- !u!23 &1368761507
 MeshRenderer:

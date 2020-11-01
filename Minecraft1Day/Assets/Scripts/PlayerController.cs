@@ -49,8 +49,6 @@ public class PlayerController : MonoBehaviour
     {
         GetPlayerInputs();
 
-        
-
         if (Mathf.Abs(mouseHorizontal) > 20 || Mathf.Abs(mouseVertical) > 20)
             return;
 
@@ -124,7 +122,7 @@ public class PlayerController : MonoBehaviour
             velocity.z = 0;
         }
 
-        if (velocity.x > 0 && CheckRight() || velocity.x > 0 && CheckLeft())
+        if (velocity.x > 0 && CheckRight() || velocity.x < 0 && CheckLeft())
         {
             velocity.x = 0;
         }

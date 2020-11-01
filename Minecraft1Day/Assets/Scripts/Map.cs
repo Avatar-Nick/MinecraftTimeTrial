@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Map : MonoBehaviour
@@ -13,13 +14,16 @@ public class Map : MonoBehaviour
     public GameObject chunkPrefab;
     public Dictionary<ChunkCoordinate, Chunk> chunks = new Dictionary<ChunkCoordinate, Chunk>();
     public Dictionary<ChunkCoordinate, Chunk> outOfViewChunks = new Dictionary<ChunkCoordinate, Chunk>();
+    public List<ChunkCoordinate> generateChunks = new List<ChunkCoordinate>();
 
     [Header("Player Data")]
-    //public PlayerController player;
     public GameObject player;
     public Vector3 spawnPosition;
     public ChunkCoordinate currentCoordinate;
 
+    //-----------------------------------------------------------------------------------//
+    //Chunk Initialization and Update
+    //-----------------------------------------------------------------------------------//
     private void Awake()
     {
         if (instance != null)
@@ -40,7 +44,11 @@ public class Map : MonoBehaviour
     {
         UpdateMap();
     }
+    //-----------------------------------------------------------------------------------//
 
+    //-----------------------------------------------------------------------------------//
+    //Map Functions
+    //-----------------------------------------------------------------------------------//
     public void GenerateMap()
     {
         int start = (VoxelData.MapSizeInChunks / 2) - VoxelData.ViewDistanceInChunks;
@@ -55,6 +63,68 @@ public class Map : MonoBehaviour
 
         player.transform.position = spawnPosition;
         currentCoordinate = GetChunkCoordinate(spawnPosition);
+    }
+
+    public void UpdateMap(bool instant = false)
+    {
+        ChunkCoordinate coordinate = GetChunkCoordinate(player.transform.position);
+        if (coordinate.Equals(currentCoordinate)) return;
+
+        int xStart = coordinate.x - VoxelData.ViewDistanceInChunks;
+        int xEnd = coordinate.x + VoxelData.ViewDistanceInChunks;
+        int zStart = coordinate.z - VoxelData.ViewDistanceInChunks;
+        int zEnd = coordinate.z + VoxelData.ViewDistanceInChunks;
+        for (int x = xStart; x < xEnd; x++)
+        {
+            for (int z = zStart; z < zEnd; z++)
+            {
+                ChunkCoordinate viewCoordinate = new ChunkCoordinate(x, z);
+                if (IsChunkInWorld(viewCoordinate))
+                {
+                    chunks.TryGetValue(viewCoordinate, out Chunk chunk);
+                    outOfViewChunks.TryGetValue(viewCoordinate, out Chunk outOfViewChunk);
+                    if (chunk == null && outOfViewChunk == null && !generateChunks.Contains(viewCoordinate))
+                    {
+                        if (instant)
+                        {
+                            BuildChunk(viewCoordinate);
+                        }
+                        else
+                        {
+                            generateChunks.Add(viewCoordinate);
+                        }
+                    }
+                    if (outOfViewChunk != null)
+                    {
+                        outOfViewChunk.Toggle(true);
+                        chunks[viewCoordinate] = outOfViewChunk;
+                        outOfViewChunks.Remove(viewCoordinate);
+                    }
+                }
+            }
+        }
+
+        // Remove Chunks that are far away
+        List<ChunkCoordinate> removeCoordinates = new List<ChunkCoordinate>();
+        foreach (KeyValuePair<ChunkCoordinate, Chunk> chunkPair in chunks)
+        {
+            ChunkCoordinate removeCoordinate = chunkPair.Key;
+            if (Mathf.Abs(coordinate.x - removeCoordinate.x) > VoxelData.ViewDistanceInChunks ||
+                Mathf.Abs(coordinate.z - removeCoordinate.z) > VoxelData.ViewDistanceInChunks)
+            {
+                Chunk removeChunk = chunkPair.Value;
+                removeChunk.Toggle(false);
+                outOfViewChunks[removeCoordinate] = removeChunk;
+            }
+        }
+
+        foreach (ChunkCoordinate removeCoordinate in removeCoordinates)
+        {
+            chunks.Remove(removeCoordinate);
+        }
+        currentCoordinate = coordinate;
+
+        StartCoroutine(EfficientBuildChunks());
     }
 
     public void BuildChunk(ChunkCoordinate coordinate)
@@ -108,59 +178,23 @@ public class Map : MonoBehaviour
         return BlockType.Stone;
     }
 
-    public void UpdateMap()
+    private IEnumerator EfficientBuildChunks()
     {
-        ChunkCoordinate coordinate = GetChunkCoordinate(player.transform.position);
-        if (coordinate.Equals(currentCoordinate)) return;
-
-        int xStart = coordinate.x - VoxelData.ViewDistanceInChunks;
-        int xEnd = coordinate.x + VoxelData.ViewDistanceInChunks;
-        int zStart = coordinate.z - VoxelData.ViewDistanceInChunks;
-        int zEnd = coordinate.z + VoxelData.ViewDistanceInChunks;
-        for (int x = xStart ; x < xEnd ; x++)
+        while (generateChunks.Count > 0)
         {
-            for (int z = zStart; z < zEnd; z++)
-            {
-                ChunkCoordinate viewCoordinate = new ChunkCoordinate(x, z);
-                if (IsChunkInWorld(viewCoordinate))
-                {
-                    chunks.TryGetValue(viewCoordinate, out Chunk chunk);
-                    outOfViewChunks.TryGetValue(viewCoordinate, out Chunk outOfViewChunk);
-                    if (chunk == null && outOfViewChunk == null) 
-                    {
-                        BuildChunk(viewCoordinate);
-                    }
-                    if (outOfViewChunk != null)
-                    {
-                        outOfViewChunk.Toggle(true);
-                        chunks[viewCoordinate] = outOfViewChunk;
-                        outOfViewChunks.Remove(viewCoordinate);
-                    }
-                }
-            }
-        }
+            BuildChunk(generateChunks[0]);
+            generateChunks.RemoveAt(0);
 
-        // Remove Chunks that are far away
-        List<ChunkCoordinate> removeCoordinates = new List<ChunkCoordinate>();
-        foreach (KeyValuePair<ChunkCoordinate, Chunk> chunkPair in chunks)
-        {
-            ChunkCoordinate removeCoordinate = chunkPair.Key;
-            if (Mathf.Abs(coordinate.x - removeCoordinate.x) > VoxelData.ViewDistanceInChunks ||
-                Mathf.Abs(coordinate.z - removeCoordinate.z) > VoxelData.ViewDistanceInChunks)
-            {
-                Chunk removeChunk = chunkPair.Value;
-                removeChunk.Toggle(false);
-                outOfViewChunks[removeCoordinate] = removeChunk;
-            }
-        }
+            yield return new WaitForSeconds(VoxelData.ChunkBuildDelay);
 
-        foreach (ChunkCoordinate removeCoordinate in removeCoordinates)
-        {
-            chunks.Remove(removeCoordinate);
         }
-        currentCoordinate = coordinate;
     }
+    //-----------------------------------------------------------------------------------//
 
+
+    //-----------------------------------------------------------------------------------//
+    //Check Functions
+    //-----------------------------------------------------------------------------------//
     public ChunkCoordinate GetChunkCoordinate(Vector3 position)
     {
         int x = ((int)position.x + (VoxelData.ChunkWidth / 2)) / VoxelData.ChunkWidth;
@@ -168,10 +202,6 @@ public class Map : MonoBehaviour
         return new ChunkCoordinate(x, z);
     }
 
-
-    //-----------------------------------------------------------------------------------//
-    //Check Functions
-    //-----------------------------------------------------------------------------------//
     public bool IsChunkInWorld(ChunkCoordinate coordinate)
     {
         if (coordinate.x > 0 && coordinate.x < VoxelData.MapSizeInChunks &&
