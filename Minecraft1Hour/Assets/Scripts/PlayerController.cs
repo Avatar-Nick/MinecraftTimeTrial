@@ -22,33 +22,14 @@ public class PlayerController : MonoBehaviour
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
-    private CharacterController characterController;
+    public CharacterController characterController;
     private bool isGrounded;
 
     //-----------------------------------------------------------------------------------//
     //PlayerController Initialization
     //-----------------------------------------------------------------------------------//
-    public void GetPlayerInputs()
-    {
-        horizontal = Input.GetAxis("Horizontal");
-        vertical = Input.GetAxis("Vertical");
-        mouseHorizontal = Input.GetAxis("Mouse X");
-        mouseVertical = Input.GetAxis("Mouse Y");
-    }
-
     private void Update()
     {
-        GetPlayerInputs();
-
-        velocity = (transform.forward * vertical + transform.right * horizontal) * Time.deltaTime * speed;
-        velocity += Vector3.up * gravity * Time.deltaTime;
-
-        transform.Rotate(Vector3.up * mouseHorizontal);
-        cam.Rotate(Vector3.right * -mouseVertical);
-        transform.Translate(velocity, Space.World);
-
-
-        /*
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance);
         if (isGrounded && velocity.y < 0)
         {
@@ -68,8 +49,5 @@ public class PlayerController : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);
-        */
     }
-
-    
 }

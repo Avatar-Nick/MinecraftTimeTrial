@@ -34,7 +34,6 @@ public class PlayerController : MonoBehaviour
     public float reach = 8f;
 
     [Header("UI Variables")]
-    public TextMeshProUGUI selectedBlockText;
     public BlockType selectedBlockType;
 
     [Header("Check Variables")]    
@@ -48,7 +47,6 @@ public class PlayerController : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        selectedBlockText.text = "";
 
         // Framerates are different between editor and application
         lookMultiplier = 180;
@@ -110,36 +108,13 @@ public class PlayerController : MonoBehaviour
             jumpRequest = true;
         }
 
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll != 0)
-        {
-            if (scroll > 0)
-            {
-                selectedBlockType += 1;
-                if (selectedBlockType > BlockType.Bedrock)
-                {
-                    selectedBlockType = BlockType.Bedrock;
-                }
-            }
-            else
-            {
-                selectedBlockType -= 1;
-                if (selectedBlockType <= 0)
-                {
-                    selectedBlockType = BlockType.Air;
-                }
-            }
-
-            selectedBlockText.text = String.Format("Selected {0} Block", selectedBlockType.ToString());
-        }
-
         if (highlightBlock.gameObject.activeSelf)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(1))
             {
                 Map.instance.GetChunk(highlightBlock.position).UpdateVoxel(highlightBlock.position, BlockType.Air);
             }
-            else if (Input.GetMouseButtonDown(1))
+            else if (Input.GetMouseButtonDown(0))
             {
                 Map.instance.GetChunk(placeBlock.position).UpdateVoxel(placeBlock.position, selectedBlockType);
             }
@@ -211,7 +186,7 @@ public class PlayerController : MonoBehaviour
         while (step < reach)
         {
             Vector3 currentPosition = cam.position + (cam.forward * step);
-            if (Map.instance.CheckForVoxel(currentPosition.x, currentPosition.y, currentPosition.z))
+            if (Map.instance.IsSolid(currentPosition.x, currentPosition.y, currentPosition.z))
             {
                 highlightBlock.position = new Vector3((int)currentPosition.x, (int)currentPosition.y, (int)currentPosition.z);
                 placeBlock.position = previousPosition;
@@ -238,10 +213,10 @@ public class PlayerController : MonoBehaviour
     {
         // Need to check all 4 corners to ensure you can correctly determine if the player is on the ground even if they are standing on 
         // the intersection of multiple voxels.
-        if (Map.instance.CheckForVoxel(transform.position.x - playerRadius, transform.position.y + downSpeed, transform.position.z - playerRadius) ||
-            Map.instance.CheckForVoxel(transform.position.x + playerRadius, transform.position.y + downSpeed, transform.position.z - playerRadius) ||
-            Map.instance.CheckForVoxel(transform.position.x - playerRadius, transform.position.y + downSpeed, transform.position.z + playerRadius) ||
-            Map.instance.CheckForVoxel(transform.position.x + playerRadius, transform.position.y + downSpeed, transform.position.z + playerRadius))
+        if (Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + downSpeed, transform.position.z - playerRadius) ||
+            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + downSpeed, transform.position.z - playerRadius) ||
+            Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + downSpeed, transform.position.z + playerRadius) ||
+            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + downSpeed, transform.position.z + playerRadius))
         {
             return true;
         }
@@ -252,10 +227,10 @@ public class PlayerController : MonoBehaviour
     {
         // Need to check all 4 corners to ensure you can correctly determine if the player is above a block even if they are standing on 
         // the intersection of multiple voxels.
-        if (Map.instance.CheckForVoxel(transform.position.x - playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z - playerRadius) ||
-            Map.instance.CheckForVoxel(transform.position.x + playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z - playerRadius) ||
-            Map.instance.CheckForVoxel(transform.position.x - playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z + playerRadius) ||
-            Map.instance.CheckForVoxel(transform.position.x + playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z + playerRadius))
+        if (Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z - playerRadius) ||
+            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z - playerRadius) ||
+            Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z + playerRadius) ||
+            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z + playerRadius))
         {
             return true;
         }
@@ -264,8 +239,8 @@ public class PlayerController : MonoBehaviour
 
     private bool CheckFront()
     {
-        if (Map.instance.CheckForVoxel(transform.position.x, transform.position.y, transform.position.z + playerRadius) ||
-            Map.instance.CheckForVoxel(transform.position.x, transform.position.y + 1f, transform.position.z + playerRadius))
+        if (Map.instance.IsSolid(transform.position.x, transform.position.y, transform.position.z + playerRadius) ||
+            Map.instance.IsSolid(transform.position.x, transform.position.y + 1f, transform.position.z + playerRadius))
         {
             return true;
         }
@@ -274,8 +249,8 @@ public class PlayerController : MonoBehaviour
 
     private bool CheckBack()
     {
-        if (Map.instance.CheckForVoxel(transform.position.x, transform.position.y, transform.position.z - playerRadius) ||
-            Map.instance.CheckForVoxel(transform.position.x, transform.position.y + 1f, transform.position.z - playerRadius))
+        if (Map.instance.IsSolid(transform.position.x, transform.position.y, transform.position.z - playerRadius) ||
+            Map.instance.IsSolid(transform.position.x, transform.position.y + 1f, transform.position.z - playerRadius))
         {
             return true;
         }
@@ -284,8 +259,8 @@ public class PlayerController : MonoBehaviour
 
     private bool CheckLeft()
     {
-        if (Map.instance.CheckForVoxel(transform.position.x - playerRadius, transform.position.y, transform.position.z) ||
-            Map.instance.CheckForVoxel(transform.position.x - playerRadius, transform.position.y + 1f, transform.position.z))
+        if (Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y, transform.position.z) ||
+            Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + 1f, transform.position.z))
         {
             return true;
         }
@@ -294,8 +269,8 @@ public class PlayerController : MonoBehaviour
 
     private bool CheckRight()
     {
-        if (Map.instance.CheckForVoxel(transform.position.x + playerRadius, transform.position.y, transform.position.z) ||
-            Map.instance.CheckForVoxel(transform.position.x + playerRadius, transform.position.y + 1f, transform.position.z))
+        if (Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y, transform.position.z) ||
+            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + 1f, transform.position.z))
         {
             return true;
         }

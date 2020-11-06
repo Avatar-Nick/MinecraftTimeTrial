@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{74AE9798-01AD-20D2-A79F-9200A42C9B67}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -56,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Data\StaticData\TextureData.cs" />
+    <Compile Include="Assets\Scripts\Data\ChunkCoordinate.cs" />
     <Compile Include="Assets\Scripts\Data\StaticData\Noise.cs" />
     <Compile Include="Assets\Scripts\Data\Chunk.cs" />
     <Compile Include="Assets\Scripts\Data\Face.cs" />
@@ -66,8 +68,6 @@
     <Compile Include="Assets\Scripts\Enums\FaceType.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Data\Block.cs" />
-    <Compile Include="Assets\Scripts\Data\ChunkCoordinate.cs" />
-    <Compile Include="Assets\Scripts\Data\ScriptableObjects\Biome.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -660,6 +660,12 @@
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualEffectGraph.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualEffectGraph.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualEffectGraph.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualEffectGraph.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

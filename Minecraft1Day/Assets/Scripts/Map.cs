@@ -21,6 +21,10 @@ public class Map : MonoBehaviour
     public Vector3 spawnPosition;
     public ChunkCoordinate currentCoordinate;
 
+    [Header("Block Data")]
+    public List<BlockSO> blocksSOs = new List<BlockSO>();
+    public Dictionary<BlockType, BlockSO> blocksDict = new Dictionary<BlockType, BlockSO>();
+
     //-----------------------------------------------------------------------------------//
     //Chunk Initialization and Update
     //-----------------------------------------------------------------------------------//
@@ -31,6 +35,11 @@ public class Map : MonoBehaviour
             return;
         }
         instance = this;
+
+        foreach (BlockSO blockSO in blocksSOs)
+        {
+            blocksDict.Add(blockSO.blockType, blockSO);
+        }
     }
 
     private void Start()
@@ -134,28 +143,41 @@ public class Map : MonoBehaviour
         chunk.Initialize(coordinate);
         chunks.Add(coordinate, chunk);
     }
+    private IEnumerator EfficientBuildChunks()
+    {
+        while (generateChunks.Count > 0)
+        {
+            BuildChunk(generateChunks[0]);
+            generateChunks.RemoveAt(0);
 
-    // Gets a current voxel than checks for air
-    public bool CheckForAirVoxel(int x, int y, int z)
+            yield return new WaitForSeconds(VoxelData.ChunkBuildDelay);
+
+        }
+    }
+    //-----------------------------------------------------------------------------------//
+
+    //-----------------------------------------------------------------------------------//
+    //Voxel Functions
+    //-----------------------------------------------------------------------------------//
+    public BlockType GetExistingVoxel(int x, int y, int z)
     {
         Vector3 position = new Vector3(x, y, z);
         ChunkCoordinate chunkCoordinate = GetChunkCoordinate(position);
         if (!IsChunkInWorld(chunkCoordinate) || y < 0 || y > VoxelData.ChunkHeight)
         {
-            return true;
+            return BlockType.Air;
         }
 
         chunks.TryGetValue(chunkCoordinate, out Chunk chunk);
-        if (chunk != null && chunk.isChunkDataPopulated)
+        if (chunk != null && chunk.initialized)
         {
-            return chunk.GetVoxel(position) == BlockType.Air;
+            return chunk.GetVoxel(position);
         }
 
-        return GetVoxel(x, y, z) == BlockType.Air;
+        return GetNewVoxel(x, y, z);
     }
 
-    // Gets a New Voxel
-    public BlockType GetVoxel(int x, int y, int z)
+    public BlockType GetNewVoxel(int x, int y, int z)
     {
         // If outside the world, return air
         if (!IsVoxelInWorld(x, y, z))
@@ -196,18 +218,6 @@ public class Map : MonoBehaviour
         }
 
         return BlockType.Stone;
-    }
-
-    private IEnumerator EfficientBuildChunks()
-    {
-        while (generateChunks.Count > 0)
-        {
-            BuildChunk(generateChunks[0]);
-            generateChunks.RemoveAt(0);
-
-            yield return new WaitForSeconds(VoxelData.ChunkBuildDelay);
-
-        }
     }
     //-----------------------------------------------------------------------------------//
 
@@ -259,8 +269,11 @@ public class Map : MonoBehaviour
         return false;
     }
 
-    public bool CheckForVoxel(float x, float y, float z)
+    public bool IsSolid(float x, float y, float z)
     {
+        BlockType blockType = GetExistingVoxel((int)x, (int)y, (int)z);
+        return blockType != BlockType.Air;
+        /*
         int xCheck = (int)x;
         int yCheck = (int)y;
         int zCheck = (int)z;
@@ -278,7 +291,7 @@ public class Map : MonoBehaviour
         zCheck -= (zChunk * VoxelData.ChunkWidth);
 
         BlockType blockType = chunk.blocks[xCheck, yCheck, zCheck];
-        return blockType != BlockType.Air;
+        */
     }
     //-----------------------------------------------------------------------------------//
 }

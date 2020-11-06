@@ -7,7 +7,9 @@ public class Map : MonoBehaviour
 
     [Header("World Data")]
     public int seed = 1337;
-    public Biome biome;
+    public int terrainHeight = 42;
+    public int solidGroundHeight = 42;
+    public float terrainScale = 0.25f;
 
     [Header("Chunk Data")]
     public GameObject chunkPrefab;
@@ -80,33 +82,23 @@ public class Map : MonoBehaviour
         }
 
         // 1st Terrain Pass
-        int terrainHeight = (int)(biome.terrainHeight * Noise.Get2DPerlin(new Vector2(x, z), 0, biome.terrainScale) + biome.solidGroundHeight);
-        if (y == terrainHeight)
+        int personHeight = (int)(terrainHeight * Noise.Get2DPerlin(new Vector2(x, z), 0, terrainScale) + solidGroundHeight);
+        if (y == personHeight)
         {
             return BlockType.Grass;
         }
-        else if (y < terrainHeight && y > terrainHeight - 4)
+        else if (y < personHeight && y > personHeight - 4)
         {
             return BlockType.Dirt;
         }
-        else if (y > terrainHeight)
+        else if (y > personHeight)
         {
             return BlockType.Air;
         }
 
-        // 2nd Pass
-        foreach (Lode lode in biome.lodes)
-        {
-            if (y > lode.minHeight &&
-                y < lode.maxHeight &&
-                Noise.Get3DPerlin(new Vector3(x, y, z), lode.noiseOffset, lode.scale, lode.threshold))
-            {
-                return lode.blockType;
-            }
-        }
-
-        return BlockType.Stone;
+        return BlockType.Dirt;
     }
+
 
     public void UpdateMap()
     {

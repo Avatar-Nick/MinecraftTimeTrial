@@ -10,4 +10,7 @@
     TreeTop = 7,
     Leaves = 8,
     Sand = 9,
+    Brick = 10,
+    Planks = 11,
+    Cobblestone = 12,
 }

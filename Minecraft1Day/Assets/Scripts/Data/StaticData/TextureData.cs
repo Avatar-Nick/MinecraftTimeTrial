@@ -22,6 +22,9 @@ public static class TextureData
         { FaceType.Stone, new Face(FaceType.Stone, 0, 3) },
         { FaceType.Sand, new Face(FaceType.Sand, 2, 1) },
         { FaceType.Bedrock, new Face(FaceType.Bedrock, 1, 1) },
+        { FaceType.Brick, new Face(FaceType.Brick, 3, 1) },
+        { FaceType.Planks, new Face(FaceType.Planks, 0, 2) },
+        { FaceType.Cobblestone, new Face(FaceType.Cobblestone, 0, 1) },
     };
 
 
@@ -33,6 +36,9 @@ public static class TextureData
         { BlockType.Trunk, new Block(BlockType.Trunk, FaceType.TreeTop, FaceType.TreeSide, FaceType.TreeTop) },
         { BlockType.Stone, new Block(BlockType.Stone, FaceType.Stone) },
         { BlockType.Sand, new Block(BlockType.Sand, FaceType.Sand) },
-        { BlockType.Bedrock, new Block(BlockType.Bedrock, FaceType.Bedrock) }
+        { BlockType.Bedrock, new Block(BlockType.Bedrock, FaceType.Bedrock) },
+        { BlockType.Brick, new Block(BlockType.Brick, FaceType.Brick) },
+        { BlockType.Planks, new Block(BlockType.Planks, FaceType.Planks) },
+        { BlockType.Cobblestone, new Block(BlockType.Cobblestone, FaceType.Cobblestone) }
     };
 }

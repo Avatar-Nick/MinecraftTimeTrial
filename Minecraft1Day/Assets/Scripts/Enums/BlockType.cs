@@ -8,4 +8,7 @@
     Stone = 5,
     Sand = 6,
     Bedrock = 7,
+    Brick = 8,
+    Planks = 9,
+    Cobblestone = 10,
 }
