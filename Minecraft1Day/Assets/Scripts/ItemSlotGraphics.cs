@@ -105,6 +105,8 @@ public class ItemSlotData
         {
             int amt = this.amount;
             this.amount = 0;
+
+            itemSlotGraphics.itemSlotData = null;
             itemSlotGraphics.UpdateSlot();
             return amt;
         }

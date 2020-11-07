@@ -117,7 +117,7 @@ public class PlayerController : MonoBehaviour
             jumpRequest = true;
         }
 
-        if (highlightBlock.gameObject.activeSelf)
+        if (highlightBlock != null && highlightBlock.gameObject.activeSelf)
         {
             if (Input.GetMouseButtonDown(1))
             {
@@ -125,10 +125,14 @@ public class PlayerController : MonoBehaviour
             }
             else if (Input.GetMouseButtonDown(0))
             {
-                if (toolbar.itemSlots[toolbar.slotIndex].itemSlotData != null && toolbar.itemSlots[toolbar.slotIndex].itemSlotData.amount > 0)
+                if (toolbar.itemSlots[toolbar.slotIndex].itemSlotData != null && toolbar.itemSlots[toolbar.slotIndex].itemSlotData.amount > 0 && placeBlock != null)
                 {
-                    Map.instance.GetChunk(placeBlock.position).UpdateVoxel(placeBlock.position, toolbar.itemSlots[toolbar.slotIndex].itemSlotData.blockType);
-                    toolbar.itemSlots[toolbar.slotIndex].itemSlotData.Remove(1);
+                    Chunk chunk = Map.instance.GetChunk(placeBlock.position);
+                    if (chunk != null)
+                    {
+                        chunk.UpdateVoxel(placeBlock.position, toolbar.itemSlots[toolbar.slotIndex].itemSlotData.blockType);
+                        toolbar.itemSlots[toolbar.slotIndex].itemSlotData.Remove(1);
+                    }                    
                 }
                 
             }
