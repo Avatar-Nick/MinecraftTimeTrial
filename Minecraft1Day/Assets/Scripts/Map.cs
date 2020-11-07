@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Map : MonoBehaviour
@@ -24,6 +25,11 @@ public class Map : MonoBehaviour
     [Header("Block Data")]
     public List<BlockSO> blocksSOs = new List<BlockSO>();
     public Dictionary<BlockType, BlockSO> blocksDict = new Dictionary<BlockType, BlockSO>();
+
+    [Header("Modifications")]
+    public Queue<VoxelMod> modifications = new Queue<VoxelMod>();
+    List<Chunk> chunksToUpdate = new List<Chunk>();
+    bool applyingModifications = false;
 
     //-----------------------------------------------------------------------------------//
     //Chunk Initialization and Update
@@ -70,6 +76,28 @@ public class Map : MonoBehaviour
             }
         }
 
+        while (modifications.Count > 0)
+        {
+            VoxelMod modification = modifications.Dequeue();
+            ChunkCoordinate coordinate = GetChunkCoordinate(modification.coordinate);
+            Chunk chunk = GetChunk(modification.coordinate);
+            if (chunk == null) {
+                chunk = BuildChunk(coordinate);
+            }
+
+            chunk.modifications.Enqueue(modification);
+
+            if (!chunksToUpdate.Contains(chunk))
+            {
+                chunksToUpdate.Add(chunk);
+            }
+        }
+
+        foreach (Chunk chunk in chunksToUpdate)
+        {
+            chunk.UpdateChunk();
+        }
+
         player.transform.position = spawnPosition;
         currentCoordinate = GetChunkCoordinate(spawnPosition);
     }
@@ -77,7 +105,11 @@ public class Map : MonoBehaviour
     public void UpdateMap(bool instant = false)
     {
         ChunkCoordinate coordinate = GetChunkMidCoordinate(player.transform.position);
-        if (coordinate.Equals(currentCoordinate)) return;
+        if (coordinate.Equals(currentCoordinate))
+        {
+            UpdateMapChunks();
+            return;
+        }
 
         int xStart = coordinate.x - VoxelData.ViewDistanceInChunks;
         int xEnd = coordinate.x + VoxelData.ViewDistanceInChunks;
@@ -133,26 +165,91 @@ public class Map : MonoBehaviour
         }
         currentCoordinate = coordinate;
 
-        StartCoroutine(EfficientBuildChunks());
+        UpdateMapChunks();
     }
 
-    public void BuildChunk(ChunkCoordinate coordinate)
+    public void UpdateMapChunks()
+    {
+        if (modifications.Count > 0 && !applyingModifications)
+        {
+            StartCoroutine(ApplyModifications());
+        }
+
+        if (generateChunks.Count > 0)
+        {
+            chunks.TryGetValue(generateChunks[0], out Chunk chunk);
+            if (chunk == null)
+            {
+                BuildChunk(generateChunks[0]);
+            }
+            generateChunks.RemoveAt(0);
+        }
+
+        if (chunksToUpdate.Count > 0)
+        {
+            UpdateChunks();
+        }
+    }
+
+    public Chunk BuildChunk(ChunkCoordinate coordinate)
     {
         GameObject chunkGO = Instantiate(chunkPrefab, new Vector3(coordinate.x, 0, coordinate.z), Quaternion.identity);
         Chunk chunk = chunkGO.GetComponent<Chunk>();
         chunk.Initialize(coordinate);
         chunks.Add(coordinate, chunk);
+
+        return chunk;
     }
-    private IEnumerator EfficientBuildChunks()
+
+    public void UpdateChunks()
     {
-        while (generateChunks.Count > 0)
+        bool updated = false;
+        int index = 0;
+        while (!updated && index < chunksToUpdate.Count - 1)
         {
-            BuildChunk(generateChunks[0]);
-            generateChunks.RemoveAt(0);
-
-            yield return new WaitForSeconds(VoxelData.ChunkBuildDelay);
-
+            Chunk updateChunk = chunksToUpdate[index];
+            if (updateChunk.initialized)
+            {
+                updateChunk.UpdateChunk();
+                chunksToUpdate.Remove(updateChunk);
+                updated = true;
+            }
+            index += 1;
         }
+    }
+
+    private IEnumerator ApplyModifications()
+    {
+        applyingModifications = true;
+        int count = 0;
+
+        while (modifications.Count > 0)
+        {
+            VoxelMod modification = modifications.Dequeue();
+            ChunkCoordinate coordinate = GetChunkCoordinate(modification.coordinate);
+            Chunk chunk = GetChunk(modification.coordinate);
+            if (chunk == null)
+            {
+                chunk = BuildChunk(coordinate);
+            }
+
+            chunk.modifications.Enqueue(modification);
+
+            if (!chunksToUpdate.Contains(chunk))
+            {
+                chunksToUpdate.Add(chunk);
+            }
+
+            // Limit voxel modifications to 200 per frame
+            count += 1;
+            if (count > 200)
+            {
+                count = 0;
+                yield return null;
+            }
+        }
+
+        applyingModifications = false;
     }
     //-----------------------------------------------------------------------------------//
 
@@ -191,33 +288,51 @@ public class Map : MonoBehaviour
             return BlockType.Bedrock;
         }
 
+        BlockType blockType = BlockType.Bedrock;
+
         // 1st Terrain Pass
-        int terrainHeight = (int)(biome.terrainHeight * Noise.Get2DPerlin(new Vector2(x, z), 0, biome.terrainScale) + biome.solidGroundHeight);
+        int terrainHeight = (int)(biome.terrainHeight * Noise.Get2DPerlin(new Vector2(x, z), 0, biome.terrainScale)) + biome.solidGroundHeight;
         if (y == terrainHeight)
         {
-            return BlockType.Grass;
+            blockType = BlockType.Grass;
         }
         else if (y < terrainHeight && y > terrainHeight - 4)
         {
-            return BlockType.Dirt;
+            blockType = BlockType.Dirt;
         }
         else if (y > terrainHeight)
         {
             return BlockType.Air;
         }
-
-        // 2nd Pass
-        foreach (Lode lode in biome.lodes)
+        else
         {
-            if (y > lode.minHeight &&
-                y < lode.maxHeight &&
-                Noise.Get3DPerlin(new Vector3(x, y, z), lode.noiseOffset, lode.scale, lode.threshold))
+            foreach (Lode lode in biome.lodes)
             {
-                return lode.blockType;
+                if (y > lode.minHeight &&
+                    y < lode.maxHeight &&
+                    Noise.Get3DPerlin(new Vector3(x, y, z), lode.noiseOffset, lode.scale, lode.threshold))
+                {
+                    blockType = lode.blockType;
+                }
             }
         }
 
-        return BlockType.Stone;
+        // 2nd Terrain Pass
+        if (y == terrainHeight)
+        {
+            Vector2 coordinate = new Vector2(x, z);
+            if (Noise.Get2DPerlin(coordinate, 0, biome.treeZoneScale) > biome.treeZoneThreshold)
+            {
+                blockType = BlockType.Grass;
+                if (Noise.Get2DPerlin(coordinate, 0, biome.treePlacementScale) > biome.treePlacementThreshold)
+                {
+                    blockType = BlockType.Wood;
+                    Structure.CreateTree(new Vector3(x, y, z), modifications, biome.minTreeHeight, biome.maxTreeHeight);
+                }
+            }
+        }
+
+        return blockType;
     }
     //-----------------------------------------------------------------------------------//
 
@@ -273,25 +388,6 @@ public class Map : MonoBehaviour
     {
         BlockType blockType = GetExistingVoxel((int)x, (int)y, (int)z);
         return blockType != BlockType.Air;
-        /*
-        int xCheck = (int)x;
-        int yCheck = (int)y;
-        int zCheck = (int)z;
-
-        int xChunk = xCheck / VoxelData.ChunkWidth;
-        int zChunk = zCheck / VoxelData.ChunkWidth;
-        
-        chunks.TryGetValue(new ChunkCoordinate(xChunk, zChunk), out Chunk chunk);
-        if (chunk == null)
-        {
-            return false;
-        }
-
-        xCheck -= (xChunk * VoxelData.ChunkWidth);
-        zCheck -= (zChunk * VoxelData.ChunkWidth);
-
-        BlockType blockType = chunk.blocks[xCheck, yCheck, zCheck];
-        */
     }
     //-----------------------------------------------------------------------------------//
 }

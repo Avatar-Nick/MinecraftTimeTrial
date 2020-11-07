@@ -10,7 +10,7 @@ public class Toolbar : MonoBehaviour
     public RectTransform highlight;
     public List<ItemSlot> itemSlots;
 
-    public int slotIndex;
+    public int slotIndex = 0;
 
     private void Start()
     {
@@ -19,6 +19,8 @@ public class Toolbar : MonoBehaviour
             itemSlot.icon.sprite = Map.instance.blocksDict[itemSlot.blockType].sprite;
             itemSlot.icon.gameObject.SetActive(true);
         }
+        
+        player.selectedBlockType = itemSlots[slotIndex].blockType;
     }
 
     private void Update()

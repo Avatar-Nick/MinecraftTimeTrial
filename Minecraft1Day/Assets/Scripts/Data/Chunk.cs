@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 
 public class Chunk : MonoBehaviour
 {
     [Header("Chunk Data")]
+    public BlockType[,,] blocks = new BlockType[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
     public ChunkCoordinate chunkCoordinate;
     public bool initialized = false;
 
@@ -16,8 +18,12 @@ public class Chunk : MonoBehaviour
     private List<Vector3> vertices = new List<Vector3>();
     private List<int> triangles = new List<int>();
     private List<Vector2> uvs = new List<Vector2>();
+    
+    [Header("Modifications")]
+    public Queue<VoxelMod> modifications = new Queue<VoxelMod>();
 
-    public BlockType[,,] blocks = new BlockType[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
+    [Header("Water")]
+    public WaterChunk waterChunk;
 
     //-----------------------------------------------------------------------------------//
     //Chunk Initialization
@@ -31,6 +37,8 @@ public class Chunk : MonoBehaviour
 
         InitializeChunkData();
         UpdateChunk();
+
+        waterChunk.BuildWater(blocks);
     }
 
     public void InitializeChunkData()
@@ -50,6 +58,13 @@ public class Chunk : MonoBehaviour
 
     public void UpdateChunk()
     {
+        while (modifications.Count > 0)
+        {
+            VoxelMod modification = modifications.Dequeue();
+            Vector3 coordinate = modification.coordinate -= transform.position;
+            blocks[(int)coordinate.x, (int)coordinate.y, (int)coordinate.z] = modification.blockType;
+        }
+
         ClearMesh();
         for (int y = 0; y < VoxelData.ChunkHeight; y++)
         {
@@ -162,7 +177,6 @@ public class Chunk : MonoBehaviour
         xCheck -= (int)transform.position.x;
         zCheck -= (int)transform.position.z;
         return blocks[xCheck, yCheck, zCheck];
-
     }
 
     public bool IsAir(Vector3 coordinate)
