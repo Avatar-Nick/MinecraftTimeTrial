@@ -57,21 +57,22 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Data\StaticData\TextureData.cs" />
     <Compile Include="Assets\Scripts\Data\ChunkCoordinate.cs" />
+    <Compile Include="Assets\Scripts\StaticHelpers\Structure.cs" />
     <Compile Include="Assets\Scripts\Data\StaticData\Noise.cs" />
     <Compile Include="Assets\Scripts\Data\Chunk.cs" />
+    <Compile Include="Assets\Scripts\ItemSlotGraphics.cs" />
+    <Compile Include="Assets\Scripts\Toolbar.cs" />
     <Compile Include="Assets\Scripts\Data\Face.cs" />
     <Compile Include="Assets\Scripts\Data\ScriptableObjects\Biome.cs" />
     <Compile Include="Assets\Scripts\Enums\BlockType.cs" />
     <Compile Include="Assets\Scripts\Data\StaticData\VoxelData.cs" />
+    <Compile Include="Assets\Scripts\VoxelMod.cs" />
     <Compile Include="Assets\Scripts\Map.cs" />
+    <Compile Include="Assets\Scripts\Data\WaterChunk.cs" />
+    <Compile Include="Assets\Scripts\Data\ScriptableObjects\BlockSO.cs" />
     <Compile Include="Assets\Scripts\Enums\FaceType.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Data\Block.cs" />
-    <Compile Include="Assets\Scripts\Data\ScriptableObjects\BlockSO.cs" />
-    <Compile Include="Assets\Scripts\Toolbar.cs" />
-    <Compile Include="Assets\Scripts\VoxelMod.cs" />
-    <Compile Include="Assets\Scripts\StaticHelpers\Structure.cs" />
-    <Compile Include="Assets\Scripts\Data\WaterChunk.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

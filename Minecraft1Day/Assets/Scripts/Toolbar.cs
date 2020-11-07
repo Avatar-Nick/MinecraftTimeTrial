@@ -8,19 +8,17 @@ public class Toolbar : MonoBehaviour
 {
     public PlayerController player;
     public RectTransform highlight;
-    public List<ItemSlot> itemSlots;
+    public List<ItemSlotGraphics> itemSlots;
 
     public int slotIndex = 0;
 
     private void Start()
     {
-        foreach (ItemSlot itemSlot in itemSlots)
+        foreach (ItemSlotGraphics itemSlot in itemSlots)
         {
-            itemSlot.icon.sprite = Map.instance.blocksDict[itemSlot.blockType].sprite;
-            itemSlot.icon.gameObject.SetActive(true);
+            ItemSlotData itemSlotData = new ItemSlotData(itemSlot, itemSlot.itemSlotData.blockType, 10);
+            itemSlotData.itemSlotGraphics.gameObject.SetActive(true);
         }
-        
-        player.selectedBlockType = itemSlots[slotIndex].blockType;
     }
 
     private void Update()
@@ -53,14 +51,6 @@ public class Toolbar : MonoBehaviour
 
     private void UpdateHighlight()
     {
-        highlight.position = itemSlots[slotIndex].icon.transform.position;
-        player.selectedBlockType = itemSlots[slotIndex].blockType;
+        highlight.position = itemSlots[slotIndex].slotIcon.transform.position;
     }
-}
-
-[Serializable]
-public class ItemSlot
-{
-    public BlockType blockType;
-    public Image icon;
 }

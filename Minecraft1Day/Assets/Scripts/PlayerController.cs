@@ -33,8 +33,8 @@ public class PlayerController : MonoBehaviour
     public float cursorIncrement = 0.1f;
     public float reach = 8f;
 
-    [Header("UI Variables")]
-    public BlockType selectedBlockType;
+    [Header("Toolbar")]
+    public Toolbar toolbar;
 
     [Header("Check Variables")]    
     private bool isGrounded;
@@ -58,6 +58,13 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            Map.instance.ToggleUI(!Map.instance.viewingUI);
+        }
+
+        if (Map.instance.viewingUI) return;
+
         GetPlayerInputs();
         PlaceCursorBlocks();
 
@@ -73,6 +80,8 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (Map.instance.viewingUI) return;
+
         CalculateVelocity();
         if (jumpRequest)
         {
@@ -116,7 +125,12 @@ public class PlayerController : MonoBehaviour
             }
             else if (Input.GetMouseButtonDown(0))
             {
-                Map.instance.GetChunk(placeBlock.position).UpdateVoxel(placeBlock.position, selectedBlockType);
+                if (toolbar.itemSlots[toolbar.slotIndex].itemSlotData != null && toolbar.itemSlots[toolbar.slotIndex].itemSlotData.amount > 0)
+                {
+                    Map.instance.GetChunk(placeBlock.position).UpdateVoxel(placeBlock.position, toolbar.itemSlots[toolbar.slotIndex].itemSlotData.blockType);
+                    toolbar.itemSlots[toolbar.slotIndex].itemSlotData.Remove(1);
+                }
+                
             }
         }
     }

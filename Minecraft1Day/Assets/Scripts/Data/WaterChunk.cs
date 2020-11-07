@@ -11,7 +11,6 @@ public class WaterChunk : MonoBehaviour
     public MeshRenderer meshRenderer;
     public MeshFilter meshFilter;
 
-    private int vertexIndex = 0;
     private List<Vector3> vertices = new List<Vector3>();
     private List<int> triangles = new List<int>();
     private List<Vector2> uvs = new List<Vector2>();
@@ -41,12 +40,22 @@ public class WaterChunk : MonoBehaviour
                     vertices.Add(new Vector3(x + 1, 0, z + 1));
                     vertices.Add(new Vector3(x + 1, 0, z));
 
+                    uvs.AddRange(VoxelData.waterUVs);
+                    uvs.AddRange(VoxelData.waterUVs);
+                    int verticesCount = vertices.Count - 8;
 
-                    uvs.AddRange(VoxelData.waterUVs);
-                    uvs.AddRange(VoxelData.waterUVs);
-                    int tl = vertices.Count - 8;
-                    triangles.AddRange(new int[] { tl, tl + 1, tl + 2, tl, tl + 2, tl + 3,
-                        tl+3+4,tl+2+4,tl+4,tl+2+4,tl+1+4,tl+4});
+                    triangles.Add(verticesCount);
+                    triangles.Add(verticesCount + 1);
+                    triangles.Add(verticesCount + 2);
+                    triangles.Add(verticesCount);
+                    triangles.Add(verticesCount + 2);
+                    triangles.Add(verticesCount + 3);
+                    triangles.Add(verticesCount + 7);
+                    triangles.Add(verticesCount + 6);
+                    triangles.Add(verticesCount + 4);
+                    triangles.Add(verticesCount + 6);
+                    triangles.Add(verticesCount + 5);
+                    triangles.Add(verticesCount + 4);
                 }                
             }
         }
@@ -83,7 +92,6 @@ public class WaterChunk : MonoBehaviour
 
     public void ClearMesh()
     {
-        vertexIndex = 0;
         vertices.Clear();
         triangles.Clear();
         uvs.Clear();

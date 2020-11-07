@@ -31,6 +31,9 @@ public class Map : MonoBehaviour
     List<Chunk> chunksToUpdate = new List<Chunk>();
     bool applyingModifications = false;
 
+    [Header("UI")]
+    public bool viewingUI = false;
+
     //-----------------------------------------------------------------------------------//
     //Chunk Initialization and Update
     //-----------------------------------------------------------------------------------//
@@ -388,6 +391,15 @@ public class Map : MonoBehaviour
     {
         BlockType blockType = GetExistingVoxel((int)x, (int)y, (int)z);
         return blockType != BlockType.Air;
+    }
+    //-----------------------------------------------------------------------------------//
+
+    //-----------------------------------------------------------------------------------//
+    //UI Functions
+    //-----------------------------------------------------------------------------------//
+    public void ToggleUI(bool toggle)
+    {
+        viewingUI = toggle;
     }
     //-----------------------------------------------------------------------------------//
 }
