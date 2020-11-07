@@ -4,7 +4,7 @@ public static class VoxelData
 {
     public static readonly int ChunkWidth = 16;
     public static readonly int ChunkHeight = 128;
-    public static readonly int MapSizeInChunks = 10;
+    public static readonly int MapSizeInChunks = 100;
     public static readonly int ViewDistanceInChunks = 5;
     public static readonly float ChunkBuildDelay = 0.1f;
 
@@ -52,4 +52,21 @@ public static class VoxelData
         new Vector3(-1,  0,  0),
         new Vector3( 1,  0,  0),
     };
+
+    public static readonly Vector3[] waterVertices = new Vector3[4]
+    {
+        new Vector3(0, 0, 0),
+        new Vector3(0, 0, 1),
+        new Vector3(1, 0, 1),
+        new Vector3(1, 0, 0),
+    };
+
+    public static readonly Vector2[] waterUVs = new Vector2[] 
+    { 
+        new Vector2(0, 0), 
+        new Vector2(0, 1),
+        new Vector2(1, 1), 
+        new Vector2(1, 0) 
+    };
+
 }

@@ -108,27 +108,6 @@ public class PlayerController : MonoBehaviour
             jumpRequest = true;
         }
 
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll != 0)
-        {
-            if (scroll > 0)
-            {
-                selectedBlockType += 1;
-                if (selectedBlockType > BlockType.Bedrock)
-                {
-                    selectedBlockType = BlockType.Bedrock;
-                }
-            }
-            else
-            {
-                selectedBlockType -= 1;
-                if (selectedBlockType <= 0)
-                {
-                    selectedBlockType = BlockType.Air;
-                }
-            }
-        }
-
         if (highlightBlock.gameObject.activeSelf)
         {
             if (Input.GetMouseButtonDown(1))
