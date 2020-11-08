@@ -1,14 +1,16 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class Map : MonoBehaviour
 {
     public static Map instance;
 
     [Header("World Data")]
-    public int seed = 1337;
+    public const int seed = 1337;
+    public System.Random random = new System.Random(seed);
     public Biome biome;
 
     [Header("Chunk Data")]
@@ -34,6 +36,9 @@ public class Map : MonoBehaviour
     [Header("UI")]
     public bool viewingUI = false;
 
+    [Header("VFX")]
+    public VisualEffect breakingBlockEffect;
+
     //-----------------------------------------------------------------------------------//
     //Chunk Initialization and Update
     //-----------------------------------------------------------------------------------//
@@ -53,7 +58,7 @@ public class Map : MonoBehaviour
 
     private void Start()
     {
-        Random.InitState(seed);
+        UnityEngine.Random.InitState(seed);
         spawnPosition = new Vector3(VoxelData.MapSizeInChunks * VoxelData.ChunkWidth / 2, VoxelData.ChunkHeight - 50, VoxelData.MapSizeInChunks * VoxelData.ChunkWidth / 2);
         GenerateMap();
     }
@@ -291,10 +296,13 @@ public class Map : MonoBehaviour
             return BlockType.Bedrock;
         }
 
-        BlockType blockType = BlockType.Bedrock;
+        BlockType blockType = BlockType.Air;
+
+        // Noise
+        float heightNoise = Noise.Get2DPerlin(new Vector2(x, z), 0, biome.terrainScale);
 
         // 1st Terrain Pass
-        int terrainHeight = (int)(biome.terrainHeight * Noise.Get2DPerlin(new Vector2(x, z), 0, biome.terrainScale)) + biome.solidGroundHeight;
+        int terrainHeight = (int)(biome.terrainHeight * heightNoise) + biome.solidGroundHeight;
         if (y == terrainHeight)
         {
             blockType = BlockType.Grass;
@@ -321,9 +329,9 @@ public class Map : MonoBehaviour
         }
 
         // 2nd Terrain Pass
-        if (y == terrainHeight)
-        {
-            Vector2 coordinate = new Vector2(x, z);
+        Vector2 coordinate = new Vector2(x, z);
+        if (y == terrainHeight && terrainHeight > biome.treeZoneHeight)
+        {            
             if (Noise.Get2DPerlin(coordinate, 0, biome.treeZoneScale) > biome.treeZoneThreshold)
             {
                 blockType = BlockType.Grass;
@@ -332,8 +340,51 @@ public class Map : MonoBehaviour
                     blockType = BlockType.Wood;
                     Structure.CreateTree(new Vector3(x, y, z), modifications, biome.minTreeHeight, biome.maxTreeHeight);
                 }
+                return blockType;
             }
         }
+
+        // 3rd Terrain Pass
+        if (y == terrainHeight && terrainHeight <= biome.waterHeight && terrainHeight > biome.waterHeight - biome.sandDepth)
+        {
+            blockType = BlockType.Sand;
+            return blockType;
+        }
+        else if (y == terrainHeight && terrainHeight <= biome.waterHeight - biome.sandDepth)
+        {
+            if (Noise.Get2DPerlin(coordinate, 0, 1) > biome.waterSandZoneThreshold)
+            {
+                blockType = BlockType.Sand;
+            }
+            else
+            {
+                blockType = BlockType.Dirt;
+            }
+            return blockType;
+        }
+
+        // 4th Terrain Pass
+        if (y == terrainHeight && terrainHeight > biome.stoneheight)
+        {
+            if (Noise.Get2DPerlin(coordinate, 0, 1) > biome.stoneZoneThreshold)
+            {
+                blockType = BlockType.Stone;
+                return blockType;
+            }
+        }
+
+        // 5th Terrain Pass
+        //
+        float caveNoise = Noise.Get2DPerlin(new Vector2(x, z), 0, biome.caveScale);
+        /*
+        if (y < terrainHeight)
+        {
+            if (Noise.Get3DPerlin(new Vector3(5 * x, 10 * y, 5 * z), 0, 1, caveNoise))
+            {
+                blockType = BlockType.Air;
+            }
+        }
+        */
 
         return blockType;
     }

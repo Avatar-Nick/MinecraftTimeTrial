@@ -88,6 +88,7 @@ public class WaterChunk : MonoBehaviour
         mesh.RecalculateNormals();
 
         meshFilter.mesh = mesh;
+        meshRenderer.receiveShadows = true;
     }
 
     public void ClearMesh()

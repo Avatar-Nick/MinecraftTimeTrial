@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 
 public class Chunk : MonoBehaviour
@@ -116,6 +115,7 @@ public class Chunk : MonoBehaviour
         mesh.RecalculateNormals();
 
         meshFilter.mesh = mesh;
+        meshRenderer.receiveShadows = true;
     }
 
     public void ClearMesh()

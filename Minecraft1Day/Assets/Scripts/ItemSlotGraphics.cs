@@ -98,6 +98,16 @@ public class ItemSlotData
     {
         itemSlotGraphics = null;
     }
+    public int Add(int amount)
+    {
+        this.amount += amount;
+        if (this.amount >= 999)
+        {
+            this.amount = 999;
+        }
+        itemSlotGraphics.UpdateSlot();
+        return this.amount;
+    }
 
     public int Remove(int amount)
     {
@@ -113,6 +123,6 @@ public class ItemSlotData
 
         this.amount -= amount;
         itemSlotGraphics.UpdateSlot();
-        return amount;
+        return this.amount;
     }
 }

@@ -53,4 +53,18 @@ public class Toolbar : MonoBehaviour
     {
         highlight.position = itemSlots[slotIndex].slotIcon.transform.position;
     }
+
+    public int GetItemOrEmpty(BlockType blockType)
+    {
+        int index = 0;
+        foreach (ItemSlotGraphics itemSlotGraphics in itemSlots)
+        {
+            if (itemSlotGraphics.itemSlotData == null || itemSlotGraphics.itemSlotData.blockType == blockType)
+            {
+                return index;
+            }
+            index += 1;
+        }
+        return -1;
+    }
 }

@@ -13,16 +13,25 @@ MonoBehaviour:
   m_Name: Default
   m_EditorClassIdentifier: 
   biomeName: Default
-  solidGroundHeight: 42
-  terrainHeight: 42
-  terrainScale: 0.25
-  treeZoneScale: 1.3
+  solidGroundHeight: 44
+  terrainHeight: 44
+  terrainScale: 0.31
+  treeZoneHeight: 60
+  treeZoneScale: 1.5
   treeZoneThreshold: 0.6
   treePlacementScale: 15
   treePlacementThreshold: 0.8
   maxTreeHeight: 12
-  minTreeHeight: 5
-  waterHeight: 60
+  minTreeHeight: 4
+  waterHeight: 58
+  sandDepth: 4
+  waterSandZoneThreshold: 0.7
+  stoneheight: 72
+  stoneZoneThreshold: 0.4
+  caveMinHeight: 20
+  caveMaxHeight: 20
+  caveThreshold: 0.3
+  caveScale: 1
   lodes:
   - lodeName: Dirt
     blockType: 1
@@ -38,3 +47,10 @@ MonoBehaviour:
     scale: 0.2
     threshold: 0.6
     noiseOffset: 500
+  - lodeName: Stone
+    blockType: 5
+    minHeight: 1
+    maxHeight: 255
+    scale: 0.4
+    threshold: 0.5
+    noiseOffset: 100

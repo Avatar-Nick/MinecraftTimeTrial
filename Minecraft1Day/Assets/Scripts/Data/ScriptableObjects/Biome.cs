@@ -11,6 +11,7 @@ public class Biome : ScriptableObject
     public float terrainScale;
 
     [Header("Trees")]
+    public int treeZoneHeight = 65;
     public float treeZoneScale = 1.3f;
     [Range(0.1f, 1f)]
     public float treeZoneThreshold = 0.6f;
@@ -23,7 +24,20 @@ public class Biome : ScriptableObject
     public int minTreeHeight = 5;
 
     [Header("Water")]
-    public int waterHeight = 100;
+    public int waterHeight = 58;
+    public int sandDepth = 3;
+    public float waterSandZoneThreshold = 0.7f;
+
+    [Header("Stone")]
+    public int stoneheight = 75;
+    public float stoneZoneThreshold = 0.4f;
+
+    [Header("Cave")] 
+    public int caveMinHeight = 5;
+    public int caveMaxHeight = 20;
+
+    public float caveThreshold = 0.2f;
+    public float caveScale = 0.25f;  
 
     [Header("Lodes")]
     public Lode[] lodes;

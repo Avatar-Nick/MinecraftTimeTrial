@@ -121,7 +121,26 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(1))
             {
-                Map.instance.GetChunk(highlightBlock.position).UpdateVoxel(highlightBlock.position, BlockType.Air);
+                Chunk chunk = Map.instance.GetChunk(highlightBlock.position);
+                if (chunk != null)
+                {
+                    BlockType blockType = chunk.GetVoxel(highlightBlock.position);
+                    int slotIndex = toolbar.GetItemOrEmpty(blockType);
+                    if (slotIndex != -1)
+                    {
+                        ItemSlotGraphics itemSlotGraphics = toolbar.itemSlots[slotIndex];
+                        if (itemSlotGraphics.itemSlotData == null)
+                        {
+                            itemSlotGraphics.itemSlotData = new ItemSlotData(itemSlotGraphics, blockType, 1);
+                        }
+                        else
+                        {
+                            toolbar.itemSlots[slotIndex].itemSlotData.Add(1);
+                        }                        
+                    }
+                    chunk.UpdateVoxel(highlightBlock.position, BlockType.Air);
+                    Map.instance.breakingBlockEffect.Play();
+                }
             }
             else if (Input.GetMouseButtonDown(0))
             {
