@@ -8,7 +8,8 @@ public class Map : MonoBehaviour
     public static Map instance;
 
     [Header("World Data")]
-    public int seed = 1337;
+    public const int seed = 1337;
+    public System.Random random = new System.Random(seed);
     public Biome biome;
 
     [Header("Chunk Data")]

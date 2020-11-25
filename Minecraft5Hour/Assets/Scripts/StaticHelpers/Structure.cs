@@ -11,21 +11,30 @@ public static class Structure
         {
             height = minTrunkHeight;
         }
-        
+
         for (int i = 1; i < height; i++)
         {
             queue.Enqueue(new VoxelMod(BlockType.Wood, new Vector3(coordinate.x, coordinate.y + i, coordinate.z)));
         }
-        
-        for (int x = -3; x < 4; x++)
+
+        int leavesWidth = 4 + (int)(Map.instance.random.NextDouble() * 6);
+        int leavesHeight = 4 + (int)(Map.instance.random.NextDouble() * 6);
+
+        int shift = 0;
+        for (int y = 0; y < leavesHeight; y++)
         {
-            for (int y = 0; y < 7; y++)
+            for (int x = -(leavesWidth / 2) + (shift / 2); x < (leavesWidth / 2) - (shift / 2); x++)
             {
-                for (int z = -4; z < 4; z++)
+                for (int z = -(leavesWidth / 2) + (shift / 2); z < (leavesWidth / 2) - (shift / 2); z++)
                 {
-                    queue.Enqueue(new VoxelMod(BlockType.Leaves, new Vector3(coordinate.x + x, coordinate.y + height + y, coordinate.z + z)));
+                    int leavesPercent = (int)Map.instance.random.NextDouble();
+                    if (leavesPercent < 0.8f)
+                    {
+                        queue.Enqueue(new VoxelMod(BlockType.Leaves, new Vector3(coordinate.x + x, coordinate.y + height + y, coordinate.z + z)));
+                    }
                 }
             }
+            shift += 1;
         }
     }
 }

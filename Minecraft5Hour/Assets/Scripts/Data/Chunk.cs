@@ -13,6 +13,7 @@ public class Chunk : MonoBehaviour
     [Header("Chunk Graphics")]
     public MeshRenderer meshRenderer;
     public MeshFilter meshFilter;
+    public MeshCollider meshCollider;
 
     private int vertexIndex = 0;
     private List<Vector3> vertices = new List<Vector3>();
@@ -116,6 +117,7 @@ public class Chunk : MonoBehaviour
         mesh.RecalculateNormals();
 
         meshFilter.mesh = mesh;
+        meshCollider.sharedMesh = mesh;
     }
 
     public void ClearMesh()

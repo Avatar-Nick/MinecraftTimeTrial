@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2646118676856504092}
   - component: {fileID: 2646118676856504093}
   - component: {fileID: 2646118676856504094}
-  - component: {fileID: 2646118676856504095}
+  - component: {fileID: 7600997900747937245}
   - component: {fileID: 4700532963935726987}
   m_Layer: 0
   m_Name: Chunk
@@ -83,7 +83,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &2646118676856504095
+--- !u!64 &7600997900747937245
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -114,4 +114,4 @@ MonoBehaviour:
     z: 0
   meshRenderer: {fileID: 2646118676856504094}
   meshFilter: {fileID: 2646118676856504093}
-  meshCollider: {fileID: 2646118676856504095}
+  meshCollider: {fileID: 7600997900747937245}

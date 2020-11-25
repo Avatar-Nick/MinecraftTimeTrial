@@ -152,8 +152,7 @@ public class PlayerController : MonoBehaviour
                         chunk.UpdateVoxel(placeBlock.position, toolbar.itemSlots[toolbar.slotIndex].itemSlotData.blockType);
                         toolbar.itemSlots[toolbar.slotIndex].itemSlotData.Remove(1);
                     }                    
-                }
-                
+                }                
             }
         }
     }

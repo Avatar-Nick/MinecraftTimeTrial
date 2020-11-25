@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Runtime.CompilerServices;
+using UnityEngine;
 
 public static class VoxelData
 {
@@ -52,6 +53,7 @@ public static class VoxelData
         new Vector3(-1,  0,  0),
         new Vector3( 1,  0,  0),
     };
+    
 
     public static readonly Vector3[] waterVertices = new Vector3[4]
     {

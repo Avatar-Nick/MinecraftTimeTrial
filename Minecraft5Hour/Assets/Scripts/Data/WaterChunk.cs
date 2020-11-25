@@ -11,7 +11,6 @@ public class WaterChunk : MonoBehaviour
     public MeshRenderer meshRenderer;
     public MeshFilter meshFilter;
 
-    private int vertexIndex = 0;
     private List<Vector3> vertices = new List<Vector3>();
     private List<int> triangles = new List<int>();
     private List<Vector2> uvs = new List<Vector2>();
@@ -83,7 +82,6 @@ public class WaterChunk : MonoBehaviour
 
     public void ClearMesh()
     {
-        vertexIndex = 0;
         vertices.Clear();
         triangles.Clear();
         uvs.Clear();

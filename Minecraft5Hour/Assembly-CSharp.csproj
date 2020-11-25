@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{93DA1CBC-E763-7F4F-F20B-2ABE0C52A670}</ProjectGuid>
+    <ProjectGuid>{95461746-5EEF-B143-58A8-BBF640BF2728}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -57,21 +57,22 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Data\StaticData\TextureData.cs" />
     <Compile Include="Assets\Scripts\Data\ChunkCoordinate.cs" />
+    <Compile Include="Assets\Scripts\StaticHelpers\Structure.cs" />
     <Compile Include="Assets\Scripts\Data\StaticData\Noise.cs" />
     <Compile Include="Assets\Scripts\Data\Chunk.cs" />
+    <Compile Include="Assets\Scripts\Toolbar.cs" />
     <Compile Include="Assets\Scripts\Data\Face.cs" />
     <Compile Include="Assets\Scripts\Data\ScriptableObjects\Biome.cs" />
     <Compile Include="Assets\Scripts\Enums\BlockType.cs" />
     <Compile Include="Assets\Scripts\Data\StaticData\VoxelData.cs" />
+    <Compile Include="Assets\Scripts\VoxelMod.cs" />
     <Compile Include="Assets\Scripts\Map.cs" />
+    <Compile Include="Assets\Scripts\Data\WaterChunk.cs" />
+    <Compile Include="Assets\Scripts\Data\ScriptableObjects\BlockSO.cs" />
     <Compile Include="Assets\Scripts\Enums\FaceType.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Data\Block.cs" />
-    <Compile Include="Assets\Scripts\Data\ScriptableObjects\BlockSO.cs" />
-    <Compile Include="Assets\Scripts\Toolbar.cs" />
-    <Compile Include="Assets\Scripts\VoxelMod.cs" />
-    <Compile Include="Assets\Scripts\StaticHelpers\Structure.cs" />
-    <Compile Include="Assets\Scripts\Data\WaterChunk.cs" />
+    <Compile Include="Assets\Scripts\ViewController.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

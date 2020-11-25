@@ -149,7 +149,7 @@ public class Chunk : MonoBehaviour
             Vector3 newPosition = startPosition + VoxelData.faceChecks[face];
             if (!IsVoxelInChunk((int)newPosition.x, (int)newPosition.y, (int)newPosition.z))
             {
-                Map.instance.GetChunk(newPosition + transform.position).UpdateChunk();
+                Map.instance.GetChunk(newPosition + transform.position)?.UpdateChunk();
             }
         }
     }

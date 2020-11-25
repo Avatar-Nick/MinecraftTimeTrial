@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     private float vertical;
     private float mouseHorizontal;
     private float mouseVertical;
+    private Vector3 velocity;
 
     [Header("Player Variables")]
     public float playerRadius = 0.5f;
@@ -16,16 +17,17 @@ public class PlayerController : MonoBehaviour
 
     [Header("Physics Variables")]
     public Transform cam;
-    public float lookMultiplier = 400.0f;
-    public float walkSpeed = 6.0f;
-    public float sprintSpeed = 12.0f;
-    public float jumpForce = 5.0f;
+    public float speed = 6.0f;
+    public float jumpSpeed = 8.0f;
+    public float jumpHeight = 3f;
     public float gravity = -9.81f;
 
-    private Vector3 velocity;
-    private float verticalMomentum;
-    private bool jumpRequest;
-    private float xRotation = 0f;
+    public Transform groundCheck;
+    public float groundDistance = 0.4f;
+    public LayerMask groundMask;
+
+    public CharacterController characterController;
+    private bool isGrounded;
 
     [Header("Block Variables")]
     public Transform highlightBlock;
@@ -36,144 +38,42 @@ public class PlayerController : MonoBehaviour
     [Header("UI Variables")]
     public BlockType selectedBlockType;
 
-    [Header("Check Variables")]    
-    private bool isGrounded;
-    private bool isSprinting;
-
     //-----------------------------------------------------------------------------------//
     //PlayerController Initialization and Update
     //-----------------------------------------------------------------------------------//
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        // Framerates are different between editor and application
-        lookMultiplier = 180;
-        if (Application.isEditor)
-        {
-            lookMultiplier = 400;
-        }            
-    } 
+        Cursor.visible = false;           
+    }
 
     private void Update()
     {
-        GetPlayerInputs();
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance);
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
+
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        Vector3 moveDirection = transform.right * horizontal + transform.forward * vertical;
+        characterController.Move(moveDirection * speed * Time.deltaTime);
+
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2 * gravity);
+        }
+
+        velocity.y += gravity * Time.deltaTime;
+        characterController.Move(velocity * Time.deltaTime);
+
         PlaceCursorBlocks();
-
-        if (Mathf.Abs(mouseHorizontal) > 20 || Mathf.Abs(mouseVertical) > 20)
-            return;
-
-        xRotation -= mouseVertical;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        cam.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
-        transform.Rotate(Vector3.up * mouseHorizontal);
-    }
-
-    private void FixedUpdate()
-    {
-        CalculateVelocity();
-        if (jumpRequest)
-        {
-            Jump();
-        }
-
-        transform.Translate(velocity, Space.World);
+        PlaceBlock();
     }
     //-----------------------------------------------------------------------------------//
 
-    //-----------------------------------------------------------------------------------//
-    //Physics Functions
-    //-----------------------------------------------------------------------------------//
-    private void GetPlayerInputs()
-    {
-        horizontal = Input.GetAxis("Horizontal");
-        vertical = Input.GetAxis("Vertical");
-        mouseHorizontal = Input.GetAxis("Mouse X") * lookMultiplier * Time.deltaTime;
-        mouseVertical = Input.GetAxis("Mouse Y") * lookMultiplier * Time.deltaTime;
-
-        if (Input.GetButtonDown("Sprint"))
-        {
-            isSprinting = true;
-        }
-
-        if (Input.GetButtonUp("Sprint"))
-        {
-            isSprinting = false;
-        }
-
-        if (isGrounded && Input.GetButtonDown("Jump"))
-        {
-            jumpRequest = true;
-        }
-
-        if (highlightBlock.gameObject.activeSelf)
-        {
-            if (Input.GetMouseButtonDown(1))
-            {
-                Map.instance.GetChunk(highlightBlock.position).UpdateVoxel(highlightBlock.position, BlockType.Air);
-            }
-            else if (Input.GetMouseButtonDown(0))
-            {
-                Map.instance.GetChunk(placeBlock.position).UpdateVoxel(placeBlock.position, selectedBlockType);
-            }
-        }
-    }
-
-    private void CalculateVelocity()
-    {
-        // Apply gravity to verticalMomentum
-        if (verticalMomentum > gravity)
-        {
-            verticalMomentum += Time.fixedDeltaTime * gravity;
-        }
-
-        // Apply sprinting to velocity
-        if (isSprinting)
-        {
-            velocity = ((transform.forward * vertical) + (transform.right * horizontal)) * Time.fixedDeltaTime * sprintSpeed;
-        }
-        else
-        {
-            velocity = ((transform.forward * vertical) + (transform.right * horizontal)) * Time.fixedDeltaTime * walkSpeed;
-        }
-
-        // Apply vertical momentum to falling
-        velocity += Vector3.up * verticalMomentum * Time.fixedDeltaTime;
-        if (velocity.z > 0 && CheckFront() || velocity.z < 0 && CheckBack())
-        {
-            velocity.z = 0;
-        }
-
-        if (velocity.x > 0 && CheckRight() || velocity.x < 0 && CheckLeft())
-        {
-            velocity.x = 0;
-        }
-
-        if (velocity.y < 0)
-        {
-            isGrounded = CheckDown(velocity.y);
-            if (isGrounded)
-            {
-                velocity.y = 0;
-            }
-        }
-        else
-        {
-            if (CheckUp(velocity.y))
-            {
-                velocity.y = 0;
-            }
-        }
-    }
-
-    private void Jump()
-    {
-        verticalMomentum = jumpForce;
-        isGrounded = false;
-        jumpRequest = false;
-    }
     //-----------------------------------------------------------------------------------//
 
     //-----------------------------------------------------------------------------------//
@@ -202,80 +102,28 @@ public class PlayerController : MonoBehaviour
         highlightBlock.gameObject.SetActive(false);
         placeBlock.gameObject.SetActive(false);
     }
-    //-----------------------------------------------------------------------------------//
 
-    //-----------------------------------------------------------------------------------//
-    //Check Variables, more efficient collision detection than using mesh colliders
-    //because mesh colliders are computationally expensive to create and cause drops
-    //in framerate
-    //-----------------------------------------------------------------------------------//
-    private bool CheckDown(float downSpeed)
+    private void PlaceBlock()
     {
-        // Need to check all 4 corners to ensure you can correctly determine if the player is on the ground even if they are standing on 
-        // the intersection of multiple voxels.
-        if (Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + downSpeed, transform.position.z - playerRadius) ||
-            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + downSpeed, transform.position.z - playerRadius) ||
-            Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + downSpeed, transform.position.z + playerRadius) ||
-            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + downSpeed, transform.position.z + playerRadius))
+        if (highlightBlock != null && highlightBlock.gameObject.activeSelf)
         {
-            return true;
+            if (Input.GetMouseButtonDown(1))
+            {
+                Chunk chunk = Map.instance.GetChunk(highlightBlock.position);
+                if (chunk != null)
+                {                    
+                    chunk.UpdateVoxel(highlightBlock.position, BlockType.Air);
+                }
+            }
+            else if (Input.GetMouseButtonDown(0))
+            {
+                Chunk chunk = Map.instance.GetChunk(placeBlock.position);
+                if (chunk != null)
+                {
+                    chunk.UpdateVoxel(placeBlock.position, selectedBlockType);               
+                }
+            }
         }
-        return false;
-    }
-
-    private bool CheckUp(float upSpeed)
-    {
-        // Need to check all 4 corners to ensure you can correctly determine if the player is above a block even if they are standing on 
-        // the intersection of multiple voxels.
-        if (Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z - playerRadius) ||
-            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z - playerRadius) ||
-            Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z + playerRadius) ||
-            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + playerHeight + upSpeed, transform.position.z + playerRadius))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    private bool CheckFront()
-    {
-        if (Map.instance.IsSolid(transform.position.x, transform.position.y, transform.position.z + playerRadius) ||
-            Map.instance.IsSolid(transform.position.x, transform.position.y + 1f, transform.position.z + playerRadius))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    private bool CheckBack()
-    {
-        if (Map.instance.IsSolid(transform.position.x, transform.position.y, transform.position.z - playerRadius) ||
-            Map.instance.IsSolid(transform.position.x, transform.position.y + 1f, transform.position.z - playerRadius))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    private bool CheckLeft()
-    {
-        if (Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y, transform.position.z) ||
-            Map.instance.IsSolid(transform.position.x - playerRadius, transform.position.y + 1f, transform.position.z))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    private bool CheckRight()
-    {
-        if (Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y, transform.position.z) ||
-            Map.instance.IsSolid(transform.position.x + playerRadius, transform.position.y + 1f, transform.position.z))
-        {
-            return true;
-        }
-        return false;
     }
     //-----------------------------------------------------------------------------------//
-
 }

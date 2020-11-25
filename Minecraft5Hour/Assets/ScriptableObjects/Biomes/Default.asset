@@ -16,6 +16,7 @@ MonoBehaviour:
   solidGroundHeight: 42
   terrainHeight: 42
   terrainScale: 0.25
+  treeZoneHeight: 61
   treeZoneScale: 1.3
   treeZoneThreshold: 0.6
   treePlacementScale: 15

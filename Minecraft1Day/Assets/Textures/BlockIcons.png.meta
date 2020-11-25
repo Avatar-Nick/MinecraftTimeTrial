@@ -29,6 +29,9 @@ TextureImporter:
   - first:
       213: -1501523072523359806
     second: cobblestone_icon
+  - first:
+      213: 1159639000735656762
+    second: BlockIcons_9
   externalObjects: {}
   serializedVersion: 11
   mipmaps:

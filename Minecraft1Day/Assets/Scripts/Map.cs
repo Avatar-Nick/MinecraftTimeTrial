@@ -39,6 +39,7 @@ public class Map : MonoBehaviour
     [Header("VFX")]
     public VisualEffect breakingBlockEffect;
 
+
     //-----------------------------------------------------------------------------------//
     //Chunk Initialization and Update
     //-----------------------------------------------------------------------------------//
@@ -344,6 +345,7 @@ public class Map : MonoBehaviour
             }
         }
 
+
         // 3rd Terrain Pass
         if (y == terrainHeight && terrainHeight <= biome.waterHeight && terrainHeight > biome.waterHeight - biome.sandDepth)
         {
@@ -371,20 +373,7 @@ public class Map : MonoBehaviour
                 blockType = BlockType.Stone;
                 return blockType;
             }
-        }
-
-        // 5th Terrain Pass
-        //
-        float caveNoise = Noise.Get2DPerlin(new Vector2(x, z), 0, biome.caveScale);
-        /*
-        if (y < terrainHeight)
-        {
-            if (Noise.Get3DPerlin(new Vector3(5 * x, 10 * y, 5 * z), 0, 1, caveNoise))
-            {
-                blockType = BlockType.Air;
-            }
-        }
-        */
+        }            
 
         return blockType;
     }

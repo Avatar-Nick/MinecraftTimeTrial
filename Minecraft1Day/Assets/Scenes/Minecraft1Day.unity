@@ -2614,9 +2614,21 @@ PrefabInstance:
       propertyPath: toolbar
       value: 
       objectReference: {fileID: 944852090}
+    - target: {fileID: 7102967142790430053, guid: bb32806af340af943b76094af2cafcb2, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7977995831081155587, guid: bb32806af340af943b76094af2cafcb2, type: 3}
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 7977995831081155587, guid: bb32806af340af943b76094af2cafcb2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8496260234778766207, guid: bb32806af340af943b76094af2cafcb2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4820097219023787154, guid: bca0f76fe00a8c04e8a76a41f14c40fa, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bb32806af340af943b76094af2cafcb2, type: 3}

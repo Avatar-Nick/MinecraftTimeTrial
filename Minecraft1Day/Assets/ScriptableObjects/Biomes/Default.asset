@@ -18,20 +18,16 @@ MonoBehaviour:
   terrainScale: 0.31
   treeZoneHeight: 60
   treeZoneScale: 1.5
-  treeZoneThreshold: 0.6
+  treeZoneThreshold: 0.7
   treePlacementScale: 15
-  treePlacementThreshold: 0.8
-  maxTreeHeight: 12
+  treePlacementThreshold: 0.75
+  maxTreeHeight: 15
   minTreeHeight: 4
-  waterHeight: 58
+  waterHeight: 59
   sandDepth: 4
   waterSandZoneThreshold: 0.7
   stoneheight: 72
   stoneZoneThreshold: 0.4
-  caveMinHeight: 20
-  caveMaxHeight: 20
-  caveThreshold: 0.3
-  caveScale: 1
   lodes:
   - lodeName: Dirt
     blockType: 1

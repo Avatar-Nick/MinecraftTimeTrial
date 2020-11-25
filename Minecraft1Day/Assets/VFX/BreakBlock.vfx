@@ -20,7 +20,7 @@ MonoBehaviour:
     x: 646
     y: -190
     width: 721
-    height: 1675
+    height: 1803
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1052,7 +1052,7 @@ MonoBehaviour:
   m_Children:
   - {fileID: 8926484042661614589}
   - {fileID: 8926484042661614591}
-  m_UIPosition: {x: 943, y: 1051}
+  m_UIPosition: {x: 943, y: 1179}
   m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_InputSlots:

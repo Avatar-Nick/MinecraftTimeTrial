@@ -11,6 +11,7 @@ public class Biome : ScriptableObject
     public float terrainScale;
 
     [Header("Trees")]
+    public int treeZoneHeight = 100;
     public float treeZoneScale = 1.3f;
     [Range(0.1f, 1f)]
     public float treeZoneThreshold = 0.6f;
